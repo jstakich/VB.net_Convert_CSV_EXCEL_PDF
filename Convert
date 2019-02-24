@@ -1,0 +1,189 @@
+ ''' <summary>
+    ''' VB.Net code that Converts CSV to XLSX then to PDF ...formats Landscape
+    ''' </summary>
+    Sub CSVtoXLSX()
+
+
+        Try
+            Dim blank As String = " "
+            WriteLine(Struct_Config_Data.current_file_number, blank, blank, blank, blank, blank, blank, blank, blank, blank, blank)
+            WriteLine(Struct_Config_Data.current_file_number, "Total Blah - ", Count_Individual_Total, "  ", "Total Blah - ", Count_Individual, blank, blank, blank, blank, blank)
+        Catch ex As Exception
+            OutputToLog("Error in CSVtoXLSX...")
+            OutputToLog(ex.ToString)
+        End Try
+
+
+        Try
+            FileClose(Struct_Config_Data.current_file_number)
+        Catch ex As Exception
+
+        End Try
+        Try
+            Dim newFileName As String = Struct_Config_Data.current_file.ToString.Replace(".csv", ".xlsx")
+
+            Dim oExcelFile As Object
+
+            ' Open Excel application object
+            Try
+                oExcelFile = GetObject(, "Excel.Application")
+            Catch
+                oExcelFile = CreateObject("Excel.Application")
+            End Try
+
+            oExcelFile.Visible = False
+            oExcelFile.Workbooks.Open(Struct_Config_Data.current_file)
+
+            ' Turn off message box so that we do not get any messages
+            oExcelFile.DisplayAlerts = False
+
+            ' Save the file as XLS file
+            oExcelFile.ActiveWorkbook.SaveAs(newFileName, Excel.XlFileFormat.xlOpenXMLWorkbook)
+
+            'workbook.activesheet.ExportAsFixedFormat xlTypePDF, "C:\pdf\test.pdf"
+            ' Close the workbook
+            oExcelFile.ActiveWorkbook.Close(SaveChanges:=False)
+
+            ' Turn the messages back on
+            oExcelFile.DisplayAlerts = True
+
+            ' Quit from Excel
+            oExcelFile.Quit()
+
+            ' Kill the variable
+            oExcelFile = Nothing
+
+
+            Try
+
+
+                If IO.File.Exists(newFileName) Then
+
+
+
+                    Dim Proceed As Boolean = False
+                    Dim xlApp As Excel.Application = Nothing
+                    Dim xlWorkBooks As Excel.Workbooks = Nothing
+
+                    Dim xlWorkBook As Excel.Workbook = Nothing
+                    Dim xlWorkSheet As Excel.Worksheet = Nothing
+                    Dim xlWorkSheets As Excel.Sheets = Nothing
+                    Dim xlCells As Excel.Range = Nothing
+                    xlApp = New Excel.Application
+                    xlApp.DisplayAlerts = False
+                    xlWorkBooks = xlApp.Workbooks
+                    xlWorkBook = xlWorkBooks.Open(newFileName)
+                    xlApp.Visible = False
+                    xlWorkSheets = xlWorkBook.Sheets
+                    For x As Integer = 1 To xlWorkSheets.Count
+                        xlWorkSheet = CType(xlWorkSheets(x), Excel.Worksheet)
+
+
+                        xlWorkSheet.Range("A1:X1").EntireColumn.AutoFit()
+
+
+                        Dim chartRange As Excel.Range
+                        chartRange = xlWorkSheet.Range("A1", "Z1")
+
+                        Dim chartRangeb As Excel.Range
+                        chartRangeb = xlWorkSheet.Range("A2", "Z2")
+
+                        Dim chartRangec As Excel.Range
+                        chartRangec = xlWorkSheet.Range("A3", "Z3")
+
+
+                        Dim chartRange2 As Excel.Range
+                        chartRange2 = xlWorkSheet.Range("b1", "Z100")
+                        chartRange2.WrapText = True
+                        xlWorkSheet.Columns("A:Z").AutoFit()
+                        Dim chartRange3 As Excel.Range
+                        chartRange3 = xlWorkSheet.Range("b1", "K500")
+                        xlWorkSheet.Range("E1").ColumnWidth = 10
+                        xlWorkSheet.Range("F1").ColumnWidth = 10
+                        xlWorkSheet.Range("G1").ColumnWidth = 10
+                        xlWorkSheet.Range("H5").ColumnWidth = 5
+                        xlWorkSheet.Range("A1:Z800").EntireColumn.AutoFit()
+
+                        xlWorkSheet.Columns("A:Z").AutoFit()
+                        xlWorkSheet.Range("b1", "K500").WrapText = True
+                        xlWorkSheet.Range("b1", "K500").HorizontalAlignment = Excel.XlHAlign.xlHAlignLeft
+                        xlWorkSheet.Range("A1:Z800").EntireColumn.AutoFit()
+                        xlWorkSheet.Range("E1").ColumnWidth = 10
+                        xlWorkSheet.Range("F1").ColumnWidth = 10
+                        xlWorkSheet.Range("G1").ColumnWidth = 10
+                        xlWorkSheet.Range("H5").ColumnWidth = 5
+
+                        chartRange.Font.Bold = True
+                        chartRangeb.Font.Bold = True
+                        chartRangec.Font.Bold = True
+
+                        xlWorkSheet.PageSetup.Zoom = False
+                        xlWorkSheet.PageSetup.FitToPagesWide = 1
+                        xlWorkSheet.PageSetup.FitToPagesTall = 200
+
+                        xlWorkSheet.PageSetup.Zoom = False
+                        xlWorkSheet.PageSetup.FitToPagesWide = 1
+                        xlWorkSheet.PageSetup.FitToPagesTall = 200
+                        xlWorkSheet.PageSetup.Orientation = Microsoft.Office.Interop.Excel.XlPageOrientation.xlLandscape
+                        xlWorkSheet.PageSetup.PaperSize = Microsoft.Office.Interop.Excel.XlPaperSize.xlPaperA4
+
+
+
+
+
+                    Next
+
+                    For Each w In xlApp.Workbooks
+                        w.Save
+                        Try
+                            w.Save
+                        Catch ex2 As Exception
+                            OutputToLog(ex2.ToString)
+                        End Try
+
+                        Try
+                            Dim the_pdf As String = Struct_Config_Data.current_file.ToString.Replace(".csv", ".pdf")
+                            w.ExportAsFixedFormat(Excel.XlFixedFormatType.xlTypePDF, the_pdf)
+                        Catch ex As Exception
+                            OutputToLog(ex.ToString)
+                        End Try
+
+                    Next w
+
+                    Try
+                        xlWorkBook.Close()
+                    Catch ex As Exception
+
+                    End Try
+
+
+                    Try
+                        xlApp.UserControl = True
+                        xlApp.Quit()
+                        ReleaseComObject(xlCells)
+                        ReleaseComObject(xlWorkSheets)
+                        ReleaseComObject(xlWorkSheet)
+                        ReleaseComObject(xlWorkBook)
+                        ReleaseComObject(xlWorkBooks)
+                        ReleaseComObject(xlApp)
+                    Catch ex As Exception
+
+                    End Try
+
+
+
+
+                Else
+
+                    OutputToLog(newFileName & " not found.")
+                End If
+            Catch ex As Exception
+
+                OutputToLog(ex.ToString)
+            End Try
+        Catch ex As Exception
+            OutputToLog(ex.ToString)
+        End Try
+
+
+    End Sub
